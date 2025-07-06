@@ -69,10 +69,6 @@ void AreasOfTriangles() {
 	std::vector<double> deltas1(nU1);
 	std::vector<double> deltas0(nU0);
 
-	std::vector<std::vector<double>> derivatives1(nU1, std::vector<double>(nU0, 0.0));
-	std::vector<std::vector<double>> derivatives2(nU2, std::vector<double>(nU1, 0.0));
-	std::vector<std::vector<double>> derivatives3(nU3, std::vector<double>(nU2, 0.0));
-
 	auto actual0 = std::make_unique<double[]>(nValidationRecords);
 	auto computed0 = std::make_unique<double[]>(nValidationRecords);
 
@@ -80,15 +76,15 @@ void AreasOfTriangles() {
 	for (int epoch = 0; epoch < 128; ++epoch) {
 		for (int i = 0; i < nTrainingRecords; ++i) {
 			layer0->Input2Output(features_training[i], models0, false);
-			layer1->Input2Output(models0, models1, derivatives1, false);
-			layer2->Input2Output(models1, models2, derivatives2, false);
-			layer3->Input2Output(models2, models3, derivatives3, false);
+			layer1->Input2Output(models0, models1, false, true);
+			layer2->Input2Output(models1, models2, false, true);
+			layer3->Input2Output(models2, models3, false, true);
 
 			deltas3[0] = (targets_training[i] - models3[0]) * alpha;
 
-			layer3->ComputeDeltas(derivatives3, deltas3, deltas2);
-			layer2->ComputeDeltas(derivatives2, deltas2, deltas1);
-			layer1->ComputeDeltas(derivatives1, deltas1, deltas0);
+			layer3->ComputeDeltas(deltas3, deltas2);
+			layer2->ComputeDeltas(deltas2, deltas1);
+			layer1->ComputeDeltas(deltas1, deltas0);
 
 			layer3->Update(deltas3);
 			layer2->Update(deltas2);
@@ -179,10 +175,6 @@ void Medians() {
 	std::vector<double> deltas1(nU1);
 	std::vector<double> deltas0(nU0);
 
-	std::vector<std::vector<double>> derivatives1(nU1, std::vector<double>(nU0, 0.0));
-	std::vector<std::vector<double>> derivatives2(nU2, std::vector<double>(nU1, 0.0));
-	std::vector<std::vector<double>> derivatives3(nU3, std::vector<double>(nU2, 0.0));
-
 	auto actual0 = std::make_unique<double[]>(nValidationRecords);
 	auto actual1 = std::make_unique<double[]>(nValidationRecords);
 	auto actual2 = std::make_unique<double[]>(nValidationRecords);
@@ -195,17 +187,17 @@ void Medians() {
 	for (int epoch = 0; epoch < 128; ++epoch) {
 		for (int i = 0; i < nTrainingRecords; ++i) {
 			layer0->Input2Output(features_training[i], models0, false);
-			layer1->Input2Output(models0, models1, derivatives1, false);
-			layer2->Input2Output(models1, models2, derivatives2, false);
-			layer3->Input2Output(models2, models3, derivatives3, false);
+			layer1->Input2Output(models0, models1, false, true);
+			layer2->Input2Output(models1, models2, false, true);
+			layer3->Input2Output(models2, models3, false, true);
 
 			for (int j = 0; j < nTargets; ++j) {
 				deltas3[j] = (targets_training[i][j] - models3[j]) * alpha;
 			}
 
-			layer3->ComputeDeltas(derivatives3, deltas3, deltas2);
-			layer2->ComputeDeltas(derivatives2, deltas2, deltas1);
-			layer1->ComputeDeltas(derivatives1, deltas1, deltas0);
+			layer3->ComputeDeltas(deltas3, deltas2);
+			layer2->ComputeDeltas(deltas2, deltas1);
+			layer1->ComputeDeltas(deltas1, deltas0);
 
 			layer3->Update(deltas3);
 			layer2->Update(deltas2);
@@ -296,7 +288,7 @@ void Det_4_4() {
 	std::vector<double> deltas1(nU1);
 	std::vector<double> deltas0(nU0);
 
-	std::vector<std::vector<double>> derivatives1(nU1, std::vector<double>(nU0, 0.0));
+	//std::vector<std::vector<double>> derivatives1(nU1, std::vector<double>(nU0, 0.0));
 	auto actual_validation = std::make_unique<double[]>(nValidationRecords);
 
 	//training
@@ -305,13 +297,13 @@ void Det_4_4() {
 		for (int i = 0; i < nTrainingRecords; ++i) {
 			//forward feeding by two layers
 			layer0->Input2Output(features_training[i], models0, false);
-			layer1->Input2Output(models0, models1, derivatives1, false);
+			layer1->Input2Output(models0, models1, false, true);
 
 			//computing residual error
 			deltas1[0] = (targets_training[i] - models1[0]) * alpha;
 
 			//back propagation
-			layer1->ComputeDeltas(derivatives1, deltas1, deltas0);
+			layer1->ComputeDeltas(deltas1, deltas0);
 
 			//updating of two layers
 			layer1->Update(deltas1);
@@ -371,7 +363,7 @@ void Tetrahedron() {
 		}
 	}
 
-	int nU0 = 50;
+	int nU0 = 60;
 	int nU1 = 10;
 	int nU2 = nTargets;
 	double alpha = 0.05;
@@ -388,9 +380,6 @@ void Tetrahedron() {
 	std::vector<double> deltas1(nU1);
 	std::vector<double> deltas0(nU0);
 
-	std::vector<std::vector<double>> derivatives1(nU1, std::vector<double>(nU0, 0.0));
-	std::vector<std::vector<double>> derivatives2(nU2, std::vector<double>(nU1, 0.0));
-
 	auto actual0 = std::make_unique<double[]>(nValidationRecords);
 	auto actual1 = std::make_unique<double[]>(nValidationRecords);
 	auto actual2 = std::make_unique<double[]>(nValidationRecords);
@@ -405,15 +394,15 @@ void Tetrahedron() {
 	for (int epoch = 0; epoch < 128; ++epoch) {
 		for (int i = 0; i < nTrainingRecords; ++i) {
 			layer0->Input2Output(features_training[i], models0, false);
-			layer1->Input2Output(models0, models1, derivatives1, false);
-			layer2->Input2Output(models1, models2, derivatives2, false);
+			layer1->Input2Output(models0, models1, false, true);
+			layer2->Input2Output(models1, models2, false, true);
 
 			for (int j = 0; j < nTargets; ++j) {
 				deltas2[j] = (targets_training[i][j] - models2[j]) * alpha;
 			}
 
-			layer2->ComputeDeltas(derivatives2, deltas2, deltas1);
-			layer1->ComputeDeltas(derivatives1, deltas1, deltas0);
+			layer2->ComputeDeltas(deltas2, deltas1);
+			layer1->ComputeDeltas(deltas1, deltas0);
 
 			layer2->Update(deltas2);
 			layer1->Update(deltas1);
@@ -463,16 +452,16 @@ int main() {
 
 	//These are unit tests
 
-	//Areas of random triangles.
-	AreasOfTriangles();
-
-	//Related targets, the lengths of medians of random triangles.
-	Medians();
+	//The areas of the faces of tetrahedron given by random vertices.
+	Tetrahedron();
 
 	//Deternminants of random matrices of 4 by 4.
 	Det_4_4();
 
-	//The areas of the faces of tetrahedron given by random vertices.
-	Tetrahedron();
+	//Related targets, the lengths of medians of random triangles.
+	Medians();
+
+	//Areas of random triangles.
+	AreasOfTriangles();
 }
 
