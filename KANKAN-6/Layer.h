@@ -14,10 +14,19 @@ public:
 		for (int i = 0; i < nUrysohns; ++i) {
 			_urysohns.push_back(std::make_unique<Urysohn>(xmin, xmax, targetMin, targetMax, nPoints));
 		}
+		int nFunctions = (int)xmin.size();
+		_derivatives = std::vector<std::vector<double>>(nUrysohns);
+		for (int i = 0; i < nUrysohns; ++i) {
+			_derivatives[i] = std::vector<double>(nFunctions);
+		}
 	}
 	Layer(int nUrysohns, int nFunctions, double targetMin, double targetMax, int nPoints) {
 		for (int i = 0; i < nUrysohns; ++i) {
 			_urysohns.push_back(std::make_unique<Urysohn>(targetMin, targetMax, nFunctions, nPoints));
+		}
+		_derivatives = std::vector<std::vector<double>>(nUrysohns);
+		for (int i = 0; i < nUrysohns; ++i) {
+			_derivatives[i] = std::vector<double>(nFunctions);
 		}
 	}
 	Layer(const Layer& layer) {
@@ -26,26 +35,31 @@ public:
 		for (int i = 0; i < layer._urysohns.size(); ++i) {
 			_urysohns[i] = std::make_unique<Urysohn>(*layer._urysohns[i]);
 		}
-	}
-	void Input2Output(const std::vector<double>& input, std::vector<double>& output, bool freezeModel = true) {
-		for (int i = 0; i < _urysohns.size(); ++i) {
-			output[i] = _urysohns[i]->GetUrysohn(input, freezeModel);
+		_derivatives.clear();
+		_derivatives = std::vector<std::vector<double>>(layer._derivatives.size());
+		for (int i = 0; i < layer._derivatives.size(); ++i) {
+			_derivatives[i] = std::vector<double>(layer._derivatives[i].size());
 		}
 	}
-	void Input2Output(const std::vector<double>& input, std::vector<double>& output,
-		std::vector<std::vector<double>>& derivatives, bool freezeModel = true) {
-		for (int i = 0; i < _urysohns.size(); ++i) {
-			output[i] = _urysohns[i]->GetUrysohn(input, derivatives[i], freezeModel);
+	void Input2Output(const std::vector<double>& input, std::vector<double>& output, bool freezeModel = true, bool computeDerivative = false) {
+		if (computeDerivative) {
+			for (int i = 0; i < _urysohns.size(); ++i) {
+				output[i] = _urysohns[i]->GetUrysohn(input, _derivatives[i], freezeModel);
+			}
+		}
+		else {
+			for (int i = 0; i < _urysohns.size(); ++i) {
+				output[i] = _urysohns[i]->GetUrysohn(input, freezeModel);
+			}
 		}
 	}
-	void ComputeDeltas(const std::vector<std::vector<double>>& derivatives, const std::vector<double>& deltasIn,
-		std::vector<double>& deltasOut) {
+	void ComputeDeltas(const std::vector<double>& deltasIn, std::vector<double>& deltasOut) {
 		std::fill(deltasOut.begin(), deltasOut.end(), 0.0);
-		int nRows = (int)derivatives[0].size();
-		int nCols = (int)derivatives.size();
+		int nRows = (int)_derivatives[0].size();
+		int nCols = (int)_derivatives.size();
 		for (int n = 0; n < nRows; ++n) {
 			for (int k = 0; k < nCols; ++k) {
-				deltasOut[n] += derivatives[k][n] * deltasIn[k];
+				deltasOut[n] += _derivatives[k][n] * deltasIn[k];
 			}
 		}
 	}
@@ -61,5 +75,6 @@ public:
 	}
 private:
 	std::vector<std::unique_ptr<Urysohn>> _urysohns;
+	std::vector<std::vector<double>> _derivatives; 
 };
 
