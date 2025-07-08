@@ -294,6 +294,11 @@ void Det_4_4() {
 	//training
 	printf("Targets are determinants of random 4 * 4 matrices, %d training records\n", nTrainingRecords);
 	for (int epoch = 0; epoch < 128; ++epoch) {
+		//test of incrementing of the number of linear segments
+		if (3 == epoch) {
+			layer0->IncrementPoins();
+			layer1->IncrementPoins();
+		}
 		for (int i = 0; i < nTrainingRecords; ++i) {
 			//forward feeding by two layers
 			layer0->Input2Output(features_training[i], models0, false);
@@ -328,6 +333,24 @@ void Det_4_4() {
 		if (pearson > 0.97) break;
 	}
 	printf("\n");
+
+	//test of copy constructor
+	auto copy_layer0 = std::make_unique<Layer>(*layer0);
+	auto copy_layer1 = std::make_unique<Layer>(*layer1);
+
+	double error2 = 0.0;
+	for (int i = 0; i < nValidationRecords; ++i) {
+		layer0->Input2Output(features_validation[i], models0);
+		layer1->Input2Output(models0, models1);
+		actual_validation[i] = models1[0];
+		error2 += (targets_validation[i] - models1[0]) * (targets_validation[i] - models1[0]);
+	}
+	double pearson = Helper::Pearson(targets_validation, actual_validation, nValidationRecords);
+	error2 /= nValidationRecords;
+	error2 = sqrt(error2);
+	error2 /= (targetMax - targetMin);
+	current_time = clock();
+	printf("Relative error of copy %f, pearson %f, time %2.3f\n", error2, pearson, (double)(current_time - start_application) / CLOCKS_PER_SEC);
 }
 
 //Here I show how to use Layers directly without KANKAN wrapper
