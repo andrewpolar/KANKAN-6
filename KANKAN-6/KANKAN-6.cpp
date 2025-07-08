@@ -275,7 +275,7 @@ void Det_4_4() {
 	//configuration
 	int nU0 = 64;
 	int nU1 = 1;
-	double alpha = 0.2;
+	double alpha = 0.1;
 
 	//instantiation of layers
 	auto layer0 = std::make_unique<Layer>(nU0, argmin, argmax, targetMin, targetMax, 3);
@@ -332,11 +332,16 @@ void Det_4_4() {
 
 		if (pearson > 0.97) break;
 	}
-	printf("\n");
 
 	//test of copy constructor
 	auto copy_layer0 = std::make_unique<Layer>(*layer0);
 	auto copy_layer1 = std::make_unique<Layer>(*layer1);
+
+	//test of renormalization
+	auto xmin = copy_layer1->GetAllMinValues(0);
+	auto xmax = copy_layer1->GetAllMaxValues(0);
+	copy_layer0->RenormalizeAllU(xmin, xmax, targetMin, targetMax);
+	copy_layer1->SetMinMaxAllU(targetMin, targetMax, 0);
 
 	double error2 = 0.0;
 	for (int i = 0; i < nValidationRecords; ++i) {
@@ -350,7 +355,7 @@ void Det_4_4() {
 	error2 = sqrt(error2);
 	error2 /= (targetMax - targetMin);
 	current_time = clock();
-	printf("Relative error of copy %f, pearson %f, time %2.3f\n", error2, pearson, (double)(current_time - start_application) / CLOCKS_PER_SEC);
+	printf("Relative error of copy %f, pearson %f, time %2.3f\n\n", error2, pearson, (double)(current_time - start_application) / CLOCKS_PER_SEC);
 }
 
 //Here I show how to use Layers directly without KANKAN wrapper
