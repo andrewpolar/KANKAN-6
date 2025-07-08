@@ -137,16 +137,26 @@ public:
 			}
 		}
 	}
-	double GetFunctionMin(int nWhich) {
-		return _xmin[nWhich];
+	void SetAllMinMax(double min, double max) {
+		for (int i = 0; i < (int)_model.size(); ++i) {
+			_xmin[i] = min;
+			_xmax[i] = max;
+			SetLimits(i);
+		}
 	}
-	double GetFunctionMax(int nWhich) {
-		return _xmax[nWhich];
+	std::vector<double> GetAllMinValues() {
+		std::vector<double> min;
+		for (int i = 0; i < (int)_xmin.size(); ++i) {
+			min.push_back(_xmin[i]);
+		}
+		return min;
 	}
-	void SetMinMax(double min, double max, int nWhich) {
-		_xmin[nWhich] = min;
-		_xmax[nWhich] = max;
-		SetLimits(nWhich);
+	std::vector<double> GetAllMaxValues() {
+		std::vector<double> max;
+		for (int i = 0; i < (int)_xmax.size(); ++i) {
+			max.push_back(_xmax[i]);
+		}
+		return max;
 	}
 private:
 	std::vector<double> _xmin;
