@@ -73,6 +73,43 @@ public:
 			_urysohns[i]->IncrementPoints();
 		}
 	}
+	void ShowData() {
+		for (int i = 0; i < _urysohns.size(); ++i) {
+			_urysohns[i]->ShowData();
+		}
+	}
+	std::vector<double> GetAllMinValues(int n) {
+		if (n >= _urysohns.size()) {
+			printf("Fatal: size min mismatch");
+			exit(0);
+		}
+		return _urysohns[n]->GetAllMinValues();
+	}
+	std::vector<double> GetAllMaxValues(int n) {
+		if (n >= _urysohns.size()) {
+			printf("Fatal: size max mismatch");
+			exit(0);
+		}
+		return _urysohns[n]->GetAllMaxValues();
+	}
+	void SetMinMaxAllU(double min, double max, int n) {
+		if (n >= _urysohns.size()) {
+			printf("Fatal: size _u mismatch");
+			exit(0);
+		}
+		_urysohns[n]->SetAllMinMax(min, max);
+	}
+	void RenormalizeAllU(const std::vector<double>& min, const std::vector<double>& max, double wantedMin, double wantedMax) {
+		if (min.size() != max.size() || min.size() != _urysohns.size()) {
+			printf("Fatal: sizes mismatch");
+			exit(0);
+		}
+		for (int i = 0; i < _urysohns.size(); ++i) {
+			double a = (max[i] - min[i]) / (wantedMax - wantedMin);
+			double b = min[i] - a * wantedMin;
+			_urysohns[i]->Renormalize(b, a);
+		}
+	}
 private:
 	std::vector<std::unique_ptr<Urysohn>> _urysohns;
 	std::vector<std::vector<double>> _derivatives; 
