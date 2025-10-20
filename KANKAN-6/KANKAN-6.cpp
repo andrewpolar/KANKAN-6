@@ -14,7 +14,7 @@
 //Publications:
 //https://www.sciencedirect.com/science/article/abs/pii/S0016003220301149
 //https://www.sciencedirect.com/science/article/abs/pii/S0952197620303742
-//https://arxiv.org/abs/2305.08194
+//https://link.springer.com/article/10.1007/s10994-025-06800-6
 
 //Compiles in Linux, here is the Makefile
 //# Compiler and flags
@@ -518,4 +518,5 @@ int main() {
 	//Areas of random triangles.
 	AreasOfTriangles();
 }
+
 
